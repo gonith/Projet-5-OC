@@ -3,74 +3,132 @@ const searchParams = new URLSearchParams(document.location.search);
 const id = searchParams.get("_id");
 console.log(id);
 
-// Appel de mon API
-fetch('http://localhost:3000/api/products/' + id) 
-  .then(function(res) {
-    if (res.ok) {
-      return res.json();
-    }
-  })
+// Je créer les variables dont j'ai besoin
+
+let titre = document.querySelector("#title");
+let prix = document.querySelector("#price");
+let description = document.querySelector("#description");
+let logoItem = document.querySelector(".item__img");
+let colorCanape = document.querySelector("#colors");
+
+let logoItemSrc = "";
+let logoItemAlt = "";
+
+  // Appel de mon API
+    fetch('http://localhost:3000/api/products/' + id) 
+    .then(function(res) {
+      if (res.ok) {
+    return res.json();
+  }
+})
   .then(function(value) {
     console.log(value);
-   
+  
       // Création de l'image fiche produit
-      let logoItem = document.createElement("img");
+      logoItem = document.createElement("img");
       document.querySelector(".item__img").appendChild(logoItem);
       logoItem.src = value.imageUrl;
       logoItem.alt = value.altTxt;
 
+      logoItemSrc = value.imageUrl;
+      logoItemAlt = value.altTxt;
+
       // Titre fiche produit
-      let h1Titre = document.querySelector("#title").textContent = value.name;
+      titre.textContent = value.name;
+      console.log(titre);
 
       // Prix fiche produit
-      let prix = document.querySelector("#price").textContent = value.price;
+      prix.textContent = value.price;
 
       // Description fiche produit
-      let description = document.querySelector("#description").textContent = value.description;
+      description.textContent = value.description;
 
       // Colors fiche produit
-      for (const color of value.colors) {
-        let optionCreate = document.createElement("option")
-        optionCreate.value = color
-        optionCreate.text = color
+      for (colorCanape of value.colors) {
+        const optionCreate = document.createElement("option")
+        optionCreate.value = colorCanape
+        optionCreate.text = colorCanape
         document.querySelector("#colors").appendChild(optionCreate)
     }
-  })
+     // Création de la condition si le panier n'existe pas alors créer un panier
 
-/* 1- récupérer l'identifiant
-let urlProduct = window.location.href;
-let url = nouvelleURL (urlProduct);
-let idProduct = url.searchParams.get ("_id");
-console.log (idProduct);
+     if (localStorage.getItem('panier') === null) {
+      localStorage.setItem('panier', '[]')
+  }
+})
+    
+  const panier = JSON.parse(localStorage.getItem("panier"));
 
-   function canap(value) {
-    for (let i = 0; i < value.length; i++) {
-        document.querySelector("#title").textContent = value[i].name;
-        document.querySelector("#price").textContent = value[i].price;
-        document.querySelector("#description").textContent = value[i].description;
+// Je récupère les valeurs nécessaires à la création du bouton
+    
+    let boutonAddPanier = document.querySelector("#addToCart");
+    selectedQuantity = document.querySelector("#quantity");
+    selectedColors = document.querySelector("#colors") ;
 
-        document.querySelector("#colors").appendChild = value[i].colors;
+    boutonAddPanier.addEventListener('click', () => {
+
+      const canapeSelected = {
+        id:id, 
+        quantity: selectedQuantity.value, 
+        color: selectedColors.value, 
+        name: titre.textContent,        // on créer la variable 'canapeSelected' avec les valeurs nécessaires
+        description: description.textContent,
+        img: logoItem.src, 
+        altTxt: logoItem.alt,
+      }
+
+      // Variable qui permet de convertir les données en objet
+
+      let canapeInPanier = JSON.parse(localStorage.getItem('panier'));
+
+      // J'ajoute les produits choisit dans le localStorage
+
+      const addToPanier = () => {
+
+        canapeInPanier.push(canapeSelected);
+        localStorage.setItem('panier', JSON.stringify(canapeInPanier));
+      }
+
+      // Notification produit ajouté
+
+      let confirmPanier = () => {
+        alert('Le produit a été ajouté au panier');
+      }
+
+      // Notification mise à jour du panier
+
+      let updatePanier = () => {
+        alert('Le panier a été mis à jour');
+      }
+
+      // Création de la variable mise à jour du panier afin d'éviter les doublons
+
+      let update = false;
+
+      // Conditions du bouton (choisir couleur, choisir nombre, ajouter la quantité si id et color correspondent)
+
+       if (selectedColors.value == '') {
+          alert("Veuillez choisir une couleur");
+      } else if (selectedQuantity.value == '0') {
+          alert("Veuillez choisir un nombre de canapé");
+      } else if (canapeInPanier) {
+        canapeInPanier.forEach (function (panierProduct, key) {
+          if (panierProduct.id == id && panierProduct.color == selectedColors.value) {
+              canapeInPanier[key].quantity = parseInt(panierProduct.quantity) + parseInt(selectedQuantity.value);
+              localStorage.setItem('panier', JSON.stringify(canapeInPanier));
+              update = true;
+              updatePanier();
+      }
+    })
+    if (!update) {
+      addToPanier();
+      confirmPanier();
     }
-} */
+}  else {
+      canapeInPanier = [];
+      addToPanier();
+      confirmPanier();
+    }
+});
 
-/* création des options value
-let valueVert = document.createElement("option");
-let valueBlanc = document.createElement("option");
-document.querySelector("#colors").appendChild(valueVert);
-document.querySelector("#colors").appendChild(valueBlanc);
-valueVert.value = "vert";
-valueVert.text = "vert";
-valueBlanc.value = "blanc";
-valueBlanc.text = "blanc";
-*/
-
-/*
-// Insérer le titre du produit
-document.querySelector("#title").textContent = value[i].name;
-
-// Insérer le prix du produit
-document.querySelector("#price").textContent = value[i].price;
-
-// Description du produit
-document.querySelector ("#description").textContent = value[i].description;
-*/
+// Product terminé
