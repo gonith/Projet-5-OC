@@ -1,5 +1,5 @@
 {
-  "homepage": "http://gonith.github.io/Projet-5-OC"
+  "homepage": "http://gonith.github.io/Projet-5-OC",
   "name": "kanap-backend",
   "version": "1.0.0",
   "description": "",
@@ -14,5 +14,8 @@
   "dependencies": {
     "express": "^4.16.4",
     "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
   }
 }
